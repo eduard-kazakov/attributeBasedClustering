@@ -1,0 +1,21 @@
+[general]
+name=Attribute based clustering
+description=Attribute based clustering for vector layers by numeric attributes using hierarchical (native) or k-means (scipy needed) algorithms.
+about=Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms. Hierarchical algorithm is native, k-means requieres scipy. You can define weight for every attribute, if hierarchical clustering used. 
+category=Vector
+version=1.0
+qgisMinimumVersion=2.0
+
+author=Eduard Kazakov
+email=silenteddie@gmail.com
+
+icon=icon.png
+
+tags=clustering, attributes, vector
+
+homepage=http://www.ekazakov.info/
+tracker=https://github.com/silenteddie/attributeBasedClustering/issues
+repository=https://github.com/silenteddie/attributeBasedClustering
+
+experimental=False
+deprecated=False
