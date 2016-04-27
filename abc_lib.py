@@ -67,12 +67,10 @@ def calculateDistance (a,b, weights):
 # get average between two n-dimensional points
 def getAverageOfTwo (a,b):
     newObject = []
-    print a, b
     i = 0
     while i < len (a):
-        newObject.append((a[i]+b[i])/2)
+        newObject.append((a[i]+b[i])/2.0)
         i += 1
-
     return newObject
 
 # Performs hierarchical clustering. Updates vector layer field.
@@ -109,13 +107,12 @@ def hierarchicalClustering (vectorLayer, attributesList, normalize, clusterNumbe
         while j < len(fullObjectsList):
             i = 0
             while i < len(fullObjectsList[j]):
-                fullObjectsList[j][i] = fullObjectsList[j][i] / maxValues[i]
+                fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
                 i += 1
             j += 1
 
     # GO CLUSTERING
     currentClusterNum = len(fullObjectsList)
-
     while currentClusterNum > clusterNumber:
         # Distance matrix
         distanceMatrix = []
@@ -142,7 +139,7 @@ def hierarchicalClustering (vectorLayer, attributesList, normalize, clusterNumbe
                     min_i = i
                     min_j = j
 
-                distanceMatrix[i].append(currentDistance)
+                distanceMatrix[i].append(round(currentDistance, 2))
                 j += 1
 
             i += 1
@@ -150,7 +147,6 @@ def hierarchicalClustering (vectorLayer, attributesList, normalize, clusterNumbe
         # split two objects into one
         fullObjectsList[min_i] = getAverageOfTwo(fullObjectsList[min_i],fullObjectsList[min_j])
         del fullObjectsList[min_j]
-
 
         # updating array with clusters id
         k = 0
@@ -214,7 +210,7 @@ def kmeans_clustering (vectorLayer, attributesList, normalize, clusterNumber, ou
         while j < len(fullObjectsList):
             i = 0
             while i < len(fullObjectsList[j]):
-                fullObjectsList[j][i] = fullObjectsList[j][i] / maxValues[i]
+                fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
                 i += 1
             j += 1
 

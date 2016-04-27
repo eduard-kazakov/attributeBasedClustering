@@ -112,7 +112,6 @@ class ABCMainDlg(QtGui.QWidget):
     def deleteSelectedFields(self):
         rows = sorted(set(index.row() for index in self.ui.fieldsTable.selectedIndexes()))
         for row in rows:
-            print row
             self.ui.fieldsTable.removeRow(row)
 
     def deleteAllFields(self):
@@ -151,6 +150,7 @@ class ABCMainDlg(QtGui.QWidget):
         # Do work
         if self.ui.clusteringMethodComboBox.currentIndex() == 1:
             self.deactivateInterface()
+            QApplication.processEvents()
             try:
                 abc_lib.hierarchicalClustering(vectorLayer, attributesList, normalize, clusterNumber, outputFieldName)
             except:
@@ -163,6 +163,7 @@ class ABCMainDlg(QtGui.QWidget):
 
         if self.ui.clusteringMethodComboBox.currentIndex() == 0:
             self.deactivateInterface()
+            QApplication.processEvents()
             try:
                 abc_lib.kmeans_clustering(vectorLayer, attributesList, normalize, clusterNumber, outputFieldName)
             except:
