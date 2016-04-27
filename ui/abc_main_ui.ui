@@ -21,10 +21,13 @@
    <item row="0" column="4">
     <widget class="QLabel" name="helpLink">
      <property name="text">
-      <string>&lt;a href=&quot;#&quot;&gt;Help&lt;/a&gt;</string>
+      <string>&lt;a href=&quot;http://www.ekazakov.info/projects/abc_tutorial.html&quot;&gt;Help&lt;/a&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

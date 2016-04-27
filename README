@@ -21,4 +21,4 @@ Hierarchical algorithm is native, k-means requieres scipy. You can define weight
  ***************************************************************************/
 
  Put this folder at <homedir>/.qgis2/python/plugins/
- Manual available at:
+ Manual available at: http://www.ekazakov.info/projects/abc_tutorial.html

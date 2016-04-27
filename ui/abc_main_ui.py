@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'abc_main_ui.ui'
 #
-# Created: Sun Apr 24 04:17:59 2016
+# Created: Wed Apr 27 04:36:04 2016
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,6 +34,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.helpLink = QtGui.QLabel(Dialog)
         self.helpLink.setAlignment(QtCore.Qt.AlignCenter)
+        self.helpLink.setOpenExternalLinks(True)
         self.helpLink.setObjectName(_fromUtf8("helpLink"))
         self.gridLayout_2.addWidget(self.helpLink, 0, 4, 1, 1)
         self.settingsGroup = QtGui.QGroupBox(Dialog)
@@ -115,7 +116,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "Attribute based clustering", None))
-        self.helpLink.setText(_translate("Dialog", "<a href=\"#\">Help</a>", None))
+        self.helpLink.setText(_translate("Dialog", "<a href=\"http://www.ekazakov.info/projects/abc_tutorial.html\">Help</a>", None))
         self.settingsGroup.setTitle(_translate("Dialog", "Settings", None))
         self.label_4.setText(_translate("Dialog", "Number of clusters", None))
         self.label_3.setText(_translate("Dialog", "Clusteng method", None))
