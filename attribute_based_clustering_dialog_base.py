@@ -113,7 +113,7 @@ class Ui_AttributeBasedClusteringDialog(object):
         self.gridLayout_2.addWidget(self.fieldsTable, 0, 3, 5, 3)
 
         self.retranslateUi(AttributeBasedClusteringDialog)
-        self.linkageMethodComboBox.setCurrentIndex(0)
+        self.linkageMethodComboBox.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(AttributeBasedClusteringDialog)
 
     def retranslateUi(self, AttributeBasedClusteringDialog):
