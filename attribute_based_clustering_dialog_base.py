@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AttributeBasedClusteringDialog(object):
     def setupUi(self, AttributeBasedClusteringDialog):
         AttributeBasedClusteringDialog.setObjectName("AttributeBasedClusteringDialog")
-        AttributeBasedClusteringDialog.resize(540, 515)
+        AttributeBasedClusteringDialog.resize(549, 366)
         self.gridLayout_2 = QtWidgets.QGridLayout(AttributeBasedClusteringDialog)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.label_2 = QtWidgets.QLabel(AttributeBasedClusteringDialog)
