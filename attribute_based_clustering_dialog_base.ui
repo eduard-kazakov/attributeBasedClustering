@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>515</height>
+    <width>549</width>
+    <height>366</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,7 +88,7 @@
       <item row="4" column="2">
        <widget class="QComboBox" name="linkageMethodComboBox">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <item>
          <property name="text">
