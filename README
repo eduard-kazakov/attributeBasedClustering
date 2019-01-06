@@ -1,14 +1,11 @@
+"""
 /***************************************************************************
-Atrribute based clustering
                                  A QGIS plugin
-Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms.
-Hierarchical algorithm is native, k-means requieres scipy. You can define weight for every attribute, if hierarchical clustering used.
-
-                              -------------------
-        begin                : 2016-04-23
-        copyright            : (C) 2016 by Eduard Kazakov
+ Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
+                             -------------------
+        begin                : 2019-01-01
+        copyright            : (C) 2019 by Eduard Kazakov
         email                : silenteddie@gmail.com
-        homepage             : http://ekazakov.info
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,6 +16,8 @@ Hierarchical algorithm is native, k-means requieres scipy. You can define weight
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+"""
 
- Put this folder at <homedir>/.qgis2/python/plugins/
+ Put this folder at QGIS 3 python plugins directory
+ Plugin also available in QGIS Plugins repository
  Manual available at: http://www.ekazakov.info/projects/abc_tutorial.html

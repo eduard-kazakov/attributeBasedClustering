@@ -1,21 +1,20 @@
 [general]
-name=Attribute based clustering
-description=Attribute based clustering for vector layers by numeric attributes using hierarchical (native) or k-means (scipy needed) algorithms.
-about=Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms. Hierarchical algorithm is native, k-means requieres scipy. You can define weight for every attribute, if hierarchical clustering used. 
-category=Vector
-version=1.0
-qgisMinimumVersion=2.0
-
-author=Eduard Kazakov
+name = Attribute based clustering
+qgisMinimumVersion = 2.99
+qgisMaximumVersion = 3.99
+about = Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
+description = Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms. Hierarchical algorithm is available in two variations: native realization for known number of clusters and scipy realization for unknown number of clusters. K-means method requieres scipy and known number of clusters. You can define weight for every attribute, if native hierarchical clustering used.
+category = Vector
+version = 2.0
+author = Eduard Kazakov
 email=silenteddie@gmail.com
+changelog=
+    2.0 : update to QGIS 3. Also new clustering method added - scipy hierarchical clustering for unknown number of clusters.
 
-icon=icon.png
-
-tags=clustering, attributes, vector
-
-homepage=http://www.ekazakov.info/
-tracker=https://github.com/silenteddie/attributeBasedClustering/issues
-repository=https://github.com/silenteddie/attributeBasedClustering
-
-experimental=False
-deprecated=False
+tags = vector, clustering, attributes
+homepage = http://www.ekazakov.info/projects/abc_tutorial.html
+tracker = https://github.com/silenteddie/attributeBasedClustering/issues
+repository = https://github.com/silenteddie/attributeBasedClustering
+icon = icon.png
+experimental = False
+deprecated = False

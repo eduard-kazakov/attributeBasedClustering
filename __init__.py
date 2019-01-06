@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
- MinkowskyDimCalculator init
                                  A QGIS plugin
- Plugin calculates Minkowski dimension (also known as Minkowski–Bouligand
- dimension; box-counting dimension) for features of vector layer.
-
-                              -------------------
-        begin                : 2015-12-16
-        copyright            : (C) 2015 by Eduard Kazakov
+ Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
+                             -------------------
+        begin                : 2019-01-01
+        copyright            : (C) 2019 by Eduard Kazakov
         email                : silenteddie@gmail.com
-        homepage             : http://ekazakov.info
  ***************************************************************************/
 
 /***************************************************************************
@@ -24,6 +19,14 @@
  ***************************************************************************/
 """
 
-def classFactory(iface):
-    from abc import ABC
-    return ABC(iface)
+
+# noinspection PyPep8Naming
+def classFactory(iface):  # pylint: disable=invalid-name
+    """Load AttributeBasedClustering class from file AttributeBasedClustering.
+
+    :param iface: A QGIS interface instance.
+    :type iface: QgsInterface
+    """
+    #
+    from .attribute_based_clustering import AttributeBasedClustering
+    return AttributeBasedClustering(iface)

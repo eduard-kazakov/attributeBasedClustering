@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="/plugins/attributeBasedClustering">
-    <file>icon.png</file>
-  </qresource>
+    <qresource prefix="/plugins/attribute_based_clustering" >
+        <file>icon.png</file>
+    </qresource>
 </RCC>
