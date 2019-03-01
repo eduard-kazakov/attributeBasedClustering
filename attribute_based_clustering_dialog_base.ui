@@ -6,14 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>549</width>
-    <height>366</height>
+    <width>749</width>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Attribute based clustering</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="6" column="0" colspan="3">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>-1</number>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
@@ -21,17 +31,13 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QgsFieldComboBox" name="fieldsComboBox"/>
+   </item>
    <item row="2" column="1" colspan="2">
     <widget class="QPushButton" name="addFieldButton">
      <property name="text">
       <string>---&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QPushButton" name="deleteAllButton">
-     <property name="text">
-      <string>Delete all</string>
      </property>
     </widget>
    </item>
@@ -42,13 +48,13 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="3">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="maximum">
-      <number>0</number>
-     </property>
-     <property name="value">
-      <number>-1</number>
+   <item row="0" column="1" colspan="2">
+    <widget class="QgsMapLayerComboBox" name="vectorLayerComboBox"/>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QPushButton" name="deleteAllButton">
+     <property name="text">
+      <string>Delete all</string>
      </property>
     </widget>
    </item>
@@ -73,147 +79,18 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QgsFieldComboBox" name="fieldsComboBox"/>
-   </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QgsMapLayerComboBox" name="vectorLayerComboBox"/>
-   </item>
-   <item row="5" column="0" colspan="6">
-    <widget class="QGroupBox" name="settingsGroup">
-     <property name="title">
-      <string>Settings</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="4" column="2">
-       <widget class="QComboBox" name="linkageMethodComboBox">
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>single</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>complete</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>average</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>median</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>weighted</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>ward</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLineEdit" name="outputFieldNameLine">
-        <property name="text">
-         <string>class</string>
-        </property>
-        <property name="maxLength">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="clusteringMethodComboBox">
-        <item>
-         <property name="text">
-          <string>K-Means (not weighted, scipy required, fast, known number of clusters)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Hierarchical (weighted, native, slow, known number of clusters)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Hierarchical-2 (not weighted, scipy required, fast, auto number of clusters)</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Number of clusters</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Linkage method</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QSpinBox" name="numberOfClustersSpinBox">
-        <property name="minimum">
-         <number>2</number>
-        </property>
-        <property name="value">
-         <number>4</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="clusteringThresholdLine">
-        <property name="text">
-         <string>0.5</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Clusteng method</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Clustering threshold</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Output field name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Normalize attributes</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+   <item row="0" column="3" rowspan="5" colspan="3">
+    <widget class="QTableWidget" name="fieldsTable">
+     <column>
+      <property name="text">
+       <string>Field</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Weight</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item row="6" column="3">
@@ -229,18 +106,543 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="3" rowspan="5" colspan="3">
-    <widget class="QTableWidget" name="fieldsTable">
-     <column>
-      <property name="text">
-       <string>Field</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Weight</string>
-      </property>
-     </column>
+   <item row="5" column="0" colspan="6">
+    <widget class="QGroupBox" name="settingsGroup">
+     <property name="title">
+      <string>Settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="6" column="0" colspan="2">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="documentMode">
+         <bool>false</bool>
+        </property>
+        <property name="tabsClosable">
+         <bool>false</bool>
+        </property>
+        <property name="movable">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="tab_3">
+         <attribute name="title">
+          <string>K-Means</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="kmeansThresholdLineEdit">
+            <property name="inputMethodHints">
+             <set>Qt::ImhDigitsOnly</set>
+            </property>
+            <property name="text">
+             <string>0.00001</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="helpLink_2">
+            <property name="text">
+             <string>&lt;a href=&quot;https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.vq.kmeans.html#scipy.cluster.vq.kmeans&quot;&gt;Original documentation for algorithm&lt;/a&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Number of times
+to run k-means</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="kmeansIterSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>9999</number>
+            </property>
+            <property name="value">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_5">
+         <attribute name="title">
+          <string>K-Means-2</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="3" column="1" colspan="2">
+           <widget class="QComboBox" name="kmeans2MethodComboBox">
+            <item>
+             <property name="text">
+              <string>random</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>points</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Number of iterations
+of the k-means
+algorithm to run</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="3">
+           <widget class="QLabel" name="helpLink_3">
+            <property name="text">
+             <string>&lt;a href=&quot;https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.vq.kmeans2.html#scipy.cluster.vq.kmeans2&quot;&gt;Original documentation for algorithm&lt;/a&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Method for
+initialization</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="1" rowspan="2" colspan="2">
+           <widget class="QSpinBox" name="kmeans2IterSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>99999999</number>
+            </property>
+            <property name="value">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_6">
+         <attribute name="title">
+          <string>Hierarchical</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Nothing to configure</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_4">
+         <attribute name="title">
+          <string>Hierarchical-2</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="6" column="1">
+           <widget class="QComboBox" name="linkageMethodComboBox">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>single</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>complete</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>average</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>median</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>weighted</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ward</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="criterionComBox">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>inconsistent</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>distance</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>maxclust</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="clusteringThresholdLine">
+            <property name="inputMethodHints">
+             <set>Qt::ImhDigitsOnly</set>
+            </property>
+            <property name="text">
+             <string>0.5</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="metricComboBox">
+            <item>
+             <property name="text">
+              <string>euclidean</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>minkowski</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>cityblock</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>seuclidean</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>sqeuclidean</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>cosine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>correlation</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hamming</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>jaccard</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>chebyshev</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>canberra</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>braycurtis</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mahalanobis</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>matching</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>dice</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>kulsinski</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>rogerstanimoto</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>russellrao</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>sokalmichener</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>sokalsneath</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="maxNumberOfClustersSpinBox"/>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="depthSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Criterion</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Max number of clusters</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Metric</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Linkage method</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Depth</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Clustering threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="helpLink_4">
+            <property name="text">
+             <string>&lt;a href=&quot;https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fclusterdata.html#scipy.cluster.hierarchy.fclusterdata&quot;&gt;Original documentation for algorithm&lt;/a&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="numberOfClustersSpinBox">
+        <property name="minimum">
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Number of clusters</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="outputFieldNameLine">
+        <property name="text">
+         <string>class</string>
+        </property>
+        <property name="maxLength">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="clusteringMethodComboBox">
+        <item>
+         <property name="text">
+          <string>K-Means (not weighted, scipy required, fast, known number of clusters)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>K-Means-2 (not weighted, scipy required, fast, known number of clusters)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hierarchical (weighted, native, slow, known number of clusters)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hierarchical-2 (not weighted, scipy required, fast, auto number of clusters)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Normalize attributes</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Output field name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Clusteng method</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>Additional options:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
