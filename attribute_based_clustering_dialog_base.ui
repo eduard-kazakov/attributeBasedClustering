@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>749</width>
-    <height>656</height>
+    <width>573</width>
+    <height>734</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -112,8 +112,260 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="6" column="0" colspan="2">
-       <widget class="QTabWidget" name="tabWidget">
+      <item row="0" column="0" colspan="2">
+       <widget class="QTabWidget" name="MainOptionsTabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Main settings</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Output field name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QLineEdit" name="outputFieldNameLine">
+            <property name="text">
+             <string>class</string>
+            </property>
+            <property name="maxLength">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBox">
+            <property name="text">
+             <string>Normalize attributes</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Number of clusters</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Clusteng method</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
+           <widget class="QSpinBox" name="numberOfClustersSpinBox">
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="value">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="QComboBox" name="clusteringMethodComboBox">
+            <item>
+             <property name="text">
+              <string>K-Means (not weighted, scipy required, fast, known number of clusters)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>K-Means-2 (not weighted, scipy required, fast, known number of clusters)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hierarchical (weighted, native, slow, known number of clusters)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hierarchical-2 (not weighted, scipy required, fast, auto number of clusters)</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Distance to centroids calculations</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Prefix for fields with distance:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="distanceFieldPrefix">
+            <property name="text">
+             <string>dist_</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QGroupBox" name="distanceModeGroupBox">
+            <property name="title">
+             <string>Mode</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="distancesRBDisabled">
+               <property name="text">
+                <string>Do not calculate distances (default)</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QRadioButton" name="distancesRBOnlyObjectCluster">
+               <property name="text">
+                <string>Calculate distances to centroid of object's cluster only</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QRadioButton" name="distancesRBAllCentroids">
+               <property name="text">
+                <string>Calculate distances to all centroids</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Not supported for Hierarchical-2</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_7">
+         <attribute name="title">
+          <string>Elbow method</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0" colspan="4">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>Elbow method is a heuristic used in determining the number of clusters in a data set. This tool allows you to plot Elbow graph and figure out an optimal number of clusters. &lt;a href=&quot;https://en.wikipedia.org/wiki/Elbow_method_(clustering)&quot;&gt;Check for more info&lt;/a&gt;. Matplotlib is required to use this tool! Selected clustring method and it's setting will be used. Hierarchical-2 is not supported</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Maximal number of clusters</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
+           <widget class="QSpinBox" name="maxClusterElbow">
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>70</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="elbowMethodRun">
+            <property name="text">
+             <string>Draw Elbow plot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="3">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>372</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QTabWidget" name="additionalOptionsTabWidget">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -220,6 +472,11 @@ to run k-means</string>
               <string>points</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>++</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="1" column="0" rowspan="2">
@@ -305,7 +562,7 @@ initialization</string>
           <item row="6" column="1">
            <widget class="QComboBox" name="linkageMethodComboBox">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <item>
              <property name="text">
@@ -335,6 +592,11 @@ initialization</string>
             <item>
              <property name="text">
               <string>ward</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>centroid</string>
              </property>
             </item>
            </widget>
@@ -560,82 +822,7 @@ initialization</string>
         </widget>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="numberOfClustersSpinBox">
-        <property name="minimum">
-         <number>2</number>
-        </property>
-        <property name="value">
-         <number>4</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Number of clusters</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="outputFieldNameLine">
-        <property name="text">
-         <string>class</string>
-        </property>
-        <property name="maxLength">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="clusteringMethodComboBox">
-        <item>
-         <property name="text">
-          <string>K-Means (not weighted, scipy required, fast, known number of clusters)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>K-Means-2 (not weighted, scipy required, fast, known number of clusters)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Hierarchical (weighted, native, slow, known number of clusters)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Hierarchical-2 (not weighted, scipy required, fast, auto number of clusters)</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Normalize attributes</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Output field name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Clusteng method</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
          <string>Additional options:</string>
