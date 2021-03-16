@@ -1,23 +1,23 @@
-"""
-/***************************************************************************
-                                 A QGIS plugin
- Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
-                             -------------------
-        begin                : 2019-01-01
-        copyright            : (C) 2019 by Eduard Kazakov
-        email                : silenteddie@gmail.com
- ***************************************************************************/
+## Attribute based clustering
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
+QGIS plugin for clustering vector data based on attributes.
 
- Put this folder at QGIS 3 python plugins directory
- Plugin also available in QGIS Plugins repository
- Manual available at: http://www.ekazakov.info/projects/abc_tutorial.html
+Available features:
+* Customizable clustering with 4 methods: two variations of K-Means and two variations of Hierarchical clustering. 3 of them are for known number of clusters, and 1 for unknown
+* Output is new attribute with relevant for object cluster number.
+* Different weights for attributes available when using native hierarchical clustring method
+* You also able to calculate distances from each object to centroids of each cluster and save them as attributes
+* Elbow method for estimating optimal number of clusters
+
+
+### Installation
+
+Put this folder at QGIS 3 python plugins directory
+Plugin also available in main QGIS Plugins repository
+
+
+### Contacts
+
+Eduard Kazakov | ee.kazakov@gmail.com
+
+

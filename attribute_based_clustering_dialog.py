@@ -1,22 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-/***************************************************************************
-                                 A QGIS plugin
- Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
-                             -------------------
-        begin                : 2019-01-01
-        copyright            : (C) 2019 by Eduard Kazakov
-        email                : silenteddie@gmail.com
- ***************************************************************************/
+Attribute based clustering: QGIS Plugin
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+https://github.com/eduard-kazakov/attributeBasedClustering
+
+Eduard Kazakov | ee.kazakov@gmail.com
 """
 
 import os
@@ -37,8 +25,6 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
         self.setupUi(self)
 
         # UI Preparation
-        #self.clusteringThresholdLine.setDisabled(True)
-        #self.linkageMethodComboBox.setDisabled(True)
         self.vectorLayerComboBox.setFilters(QgsMapLayerProxyModel.VectorLayer)
         self.fieldsComboBox.setLayer(self.vectorLayerComboBox.currentLayer())
         self.fieldsComboBox.setFilters(QgsFieldProxyModel.Numeric)
@@ -91,24 +77,15 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
             self.additionalOptionsTabWidget.setCurrentIndex(0)
             self.numberOfClustersSpinBox.setEnabled(True)
             self.distanceModeGroupBox.setEnabled(True)
-            #self.clusteringThresholdLine.setDisabled(True)
-            #self.linkageMethodComboBox.setDisabled(True)
-            #self.numberOfClustersSpinBox.setEnabled(True)
 
         if self.clusteringMethodComboBox.currentIndex() == 1:
             self.additionalOptionsTabWidget.setCurrentIndex(1)
             self.numberOfClustersSpinBox.setEnabled(True)
             self.distanceModeGroupBox.setEnabled(True)
-            #self.clusteringThresholdLine.setDisabled(True)
-            #self.linkageMethodComboBox.setDisabled(True)
-            #self.numberOfClustersSpinBox.setEnabled(True)
         if self.clusteringMethodComboBox.currentIndex() == 2:
             self.additionalOptionsTabWidget.setCurrentIndex(2)
             self.numberOfClustersSpinBox.setEnabled(True)
             self.distanceModeGroupBox.setEnabled(True)
-            #self.clusteringThresholdLine.setEnabled(True)
-            #self.linkageMethodComboBox.setEnabled(True)
-            #self.numberOfClustersSpinBox.setDisabled(True)
 
     def criterionChanged(self):
         if self.criterionComBox.currentIndex() == 0:
