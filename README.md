@@ -13,6 +13,7 @@ Available features:
 ### Installation
 
 Put this folder at QGIS 3 python plugins directory
+
 Plugin also available in main QGIS Plugins repository
 
 
