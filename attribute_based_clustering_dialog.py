@@ -5,16 +5,15 @@ Attribute based clustering: QGIS Plugin
 https://github.com/eduard-kazakov/attributeBasedClustering
 
 Eduard Kazakov | ee.kazakov@gmail.com
+
+2024
 """
 
 import os
-import math
-import copy
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QVariant, Qt
-from qgis.core import *
+from qgis.core import QgsFieldProxyModel,QgsMapLayerProxyModel
+from .attribute_based_clustering_algoritms import perform_clustering, draw_elbow_plot
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'attribute_based_clustering_dialog_base.ui'))
@@ -149,79 +148,29 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
         self.progressBar.show()
         self.runButton.setDisabled(True)
 
-    # Main function - run process after "Run" button is pressed
-    def run(self):
+    def check_and_get_inputs (self, action):
+        parameters = {}
+
+        # Common
         if not self.vectorLayerComboBox.currentText():
             QtWidgets.QMessageBox.critical(None, "Error", 'No layer specified!')
-            return
+            return {}
 
         if not self.fieldsTable.rowCount():
             QtWidgets.QMessageBox.critical(None, "Error", 'No attributes specified!')
-            return
+            return {}
 
         if not self.checkIfTableIsCorrect():
             QtWidgets.QMessageBox.critical(None, "Error", 'Table is incorrect! Check fields and weights')
-            return
+            return {}
 
-        if not self.outputFieldNameLine.text():
-            QtWidgets.QMessageBox.critical(None, "Error", 'No output field name specified!')
-            return
+        parameters['vector_layer'] = self.vectorLayerComboBox.currentLayer()
+        parameters['normalize'] = self.checkBox.isChecked()
+        parameters['cluster_number'] = int(self.numberOfClustersSpinBox.text())
+        parameters['output_field_name'] = self.outputFieldNameLine.text()
 
+        parameters['max_clusters_elbow'] = int(self.maxClusterElbow.text())
 
-        # Inputs validation
-
-        if self.clusteringMethodComboBox.currentIndex() == 0:
-            try:
-                kmeans_clustering_threshold = float(self.kmeansThresholdLineEdit.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Threshold must be float! %s' % str(e))
-                return
-
-            try:
-                kmeans_iter = int(self.kmeansIterSpinBox.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Number of iterations must be integer! %s' % str(e))
-                return
-
-        if self.clusteringMethodComboBox.currentIndex() == 1:
-
-            try:
-                kmeans2_iter = int(self.kmeans2IterSpinBox.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Number of iterations must be integer! %s' % str(e))
-                return
-
-        if self.clusteringMethodComboBox.currentIndex() == 3:
-            try:
-                hier2_threshold = float(self.clusteringThresholdLine.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Threshold must be float! %s' % str(e))
-                return
-
-            try:
-                hier2_max_clusters = int(self.maxNumberOfClustersSpinBox.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Max number of clusters must be integer! %s' % str(e))
-                return
-
-            try:
-                hier2_depth = int(self.depthSpinBox.text())
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(None, "Error", 'Depth must be integer! %s' % str(e))
-                return
-
-        vectorLayer = self.vectorLayerComboBox.currentLayer()
-        normalize = self.checkBox.isChecked()
-        clusterNumber = int(self.numberOfClustersSpinBox.text())
-        outputFieldName = self.outputFieldNameLine.text()
-
-        hier2_linkageMethod = self.linkageMethodComboBox.currentText()
-        hier2_criterion = self.criterionComBox.currentText()
-        hier2_metric = self.metricComboBox.currentText()
-
-        kmeans2_method = self.kmeans2MethodComboBox.currentText()
-
-        # Distances settings
         calculate_distances_mode = 'disabled'
         if self.distancesRBDisabled.isChecked():
             calculate_distances_mode = 'disabled'
@@ -229,675 +178,195 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
             calculate_distances_mode = 'only_object_cluster'
         elif self.distancesRBAllCentroids.isChecked():
             calculate_distances_mode = 'all_clusters'
+        parameters['calculate_distances_mode'] = calculate_distances_mode
 
+        distance_field_prefix = None
         if calculate_distances_mode != 'disabled':
             if not self.distanceFieldPrefix.text():
                 QtWidgets.QMessageBox.critical(None, "Error", 'Prefix for field with distance must be set')
-                return
+                return {}
+            else:
+                distance_field_prefix = self.distanceFieldPrefix.text()
+        parameters['distance_field_prefix'] = distance_field_prefix
+        
+        attributes_list = []
+        all_rows = self.fieldsTable.rowCount()
+        for row in range(0, all_rows):
+            attributes_list.append([self.fieldsTable.item(row, 0).text(), float(self.fieldsTable.item(row, 1).text())])
+        parameters['attributes_list'] = attributes_list
 
-
-        attributesList = []
-
-        allRows = self.fieldsTable.rowCount()
-        for row in range(0, allRows):
-            attributesList.append([self.fieldsTable.item(row, 0).text(), float(self.fieldsTable.item(row, 1).text())])
-
-        ### Do work
-
-        if self.clusteringMethodComboBox.currentIndex() in [0,1,3]:
-            try:
-                from scipy.cluster.vq import kmeans, vq, kmeans2
-                import scipy.cluster.hierarchy as hcluster
-            except:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Scipy is required to run selected method!')
-                return
-
-
+        # Specific by algorithm
+        # K-Means
         if self.clusteringMethodComboBox.currentIndex() == 0:
-           self.deactivateInterface()
-           QApplication.processEvents()
-           try:
-               self.kmeansClustering(vectorLayer, attributesList, normalize, clusterNumber, kmeans_iter, kmeans_clustering_threshold, outputFieldName,
-                                     distance_calculation_method=calculate_distances_mode,
-                                     distance_field_prefix=self.distanceFieldPrefix.text())
-           except Exception as e:
-               self.activateInterface()
-               QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-               return
-
-
-        if self.clusteringMethodComboBox.currentIndex() == 1:
-            self.deactivateInterface()
-            QApplication.processEvents()
-            try:
-                self.kmeans2Clustering(vectorLayer, attributesList, normalize, clusterNumber, kmeans2_iter, kmeans2_method,
-                                       outputFieldName,
-                                       distance_calculation_method=calculate_distances_mode,
-                                       distance_field_prefix=self.distanceFieldPrefix.text()
-                                       )
-            except Exception as e:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                return
-
-        if self.clusteringMethodComboBox.currentIndex() == 2:
-            self.deactivateInterface()
-            QApplication.processEvents()
-            try:
-                self.hierarchicalClustering(vectorLayer, attributesList, normalize, clusterNumber,
-                                            outputFieldName,
-                                            distance_calculation_method=calculate_distances_mode,
-                                            distance_field_prefix=self.distanceFieldPrefix.text()
-                                            )
-            except Exception as e:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                return
-
-
-        if self.clusteringMethodComboBox.currentIndex() == 3:
-            self.deactivateInterface()
-            QApplication.processEvents()
-            try:
-                self.hierarchicalClusteringScipy(vectorLayer, attributesList, normalize, hier2_threshold,
-                                                 hier2_linkageMethod, hier2_criterion, hier2_metric,
-                                                 hier2_depth, hier2_max_clusters, outputFieldName)
-
-            except Exception as e:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                return
-
-        self.activateInterface()
-        QtWidgets.QMessageBox.about(None, "Success", "Done!")
-
-    def elbow_run(self):
-        try:
-            import matplotlib.pyplot as plt
-        except:
-            QtWidgets.QMessageBox.critical(None, "Error", 'Matplotlib module is not available')
-            return
-
-        # Temporary workaround - copy of run code when checking
-        if not self.vectorLayerComboBox.currentText():
-            QtWidgets.QMessageBox.critical(None, "Error", 'No layer specified!')
-            return
-
-        if not self.fieldsTable.rowCount():
-            QtWidgets.QMessageBox.critical(None, "Error", 'No attributes specified!')
-            return
-
-        if not self.checkIfTableIsCorrect():
-            QtWidgets.QMessageBox.critical(None, "Error", 'Table is incorrect! Check fields and weights')
-            return
-
-        if self.clusteringMethodComboBox.currentIndex() == 0:
+            parameters['algorithm'] = 'kmeans'
             try:
                 kmeans_clustering_threshold = float(self.kmeansThresholdLineEdit.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Threshold must be float! %s' % str(e))
-                return
+                return {}
+            parameters['kmeans_clustering_threshold'] = kmeans_clustering_threshold
 
             try:
                 kmeans_iter = int(self.kmeansIterSpinBox.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Number of iterations must be integer! %s' % str(e))
                 return
-
+            parameters['kmeans_iter'] = kmeans_iter
+        
         if self.clusteringMethodComboBox.currentIndex() == 1:
-
+            parameters['algorithm'] = 'kmeans2'
             try:
                 kmeans2_iter = int(self.kmeans2IterSpinBox.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Number of iterations must be integer! %s' % str(e))
-                return
+                return {}
+            
+            parameters['kmeans2_iter'] = kmeans2_iter
+            parameters['kmeans2_method'] = self.kmeans2MethodComboBox.currentText()
+
+        if self.clusteringMethodComboBox.currentIndex() == 2:
+            parameters['algorithm'] = 'hier'
 
         if self.clusteringMethodComboBox.currentIndex() == 3:
+            parameters['algorithm'] = 'hier2'
             try:
                 hier2_threshold = float(self.clusteringThresholdLine.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Threshold must be float! %s' % str(e))
-                return
+                return {}
+            parameters['hier2_threshold'] = hier2_threshold
 
             try:
                 hier2_max_clusters = int(self.maxNumberOfClustersSpinBox.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Max number of clusters must be integer! %s' % str(e))
-                return
+                return {}
+            parameters['hier2_max_clusters'] = hier2_max_clusters
 
             try:
                 hier2_depth = int(self.depthSpinBox.text())
             except Exception as e:
                 QtWidgets.QMessageBox.critical(None, "Error", 'Depth must be integer! %s' % str(e))
-                return
+                return {}
+            parameters['hier2_depth'] = hier2_depth
+            parameters['hier2_linkage_method'] = self.linkageMethodComboBox.currentText()
+            parameters['hier2_criterion'] = self.criterionComBox.currentText()
+            parameters['hier2_metric'] = self.metricComboBox.currentText()
 
-        vectorLayer = self.vectorLayerComboBox.currentLayer()
-        normalize = self.checkBox.isChecked()
-        outputFieldName = self.outputFieldNameLine.text()
+        # Specific by action
+        if action == 'algorithm_run':
+            if not self.outputFieldNameLine.text():
+                QtWidgets.QMessageBox.critical(None, "Error", 'No output field name specified!')
+                return {}
+            
+            output_mode = 'temp'
+            output_temp_layer_name=None
+            if self.saveToTemporaryLayerRB.isChecked():
+                output_mode = 'temp'
+                if self.tempLayerName.text() is None:
+                    output_temp_layer_name = 'Clusteted'
+                else: 
+                    output_temp_layer_name = self.tempLayerName.text()
+            if self.updateSourceRB.isChecked():
+                output_mode = 'source'
 
-        hier2_linkageMethod = self.linkageMethodComboBox.currentText()
-        hier2_criterion = self.criterionComBox.currentText()
-        hier2_metric = self.metricComboBox.currentText()
+            parameters['output_mode'] = output_mode
+            parameters['output_temp_layer_name'] = output_temp_layer_name
 
-        kmeans2_method = self.kmeans2MethodComboBox.currentText()
+        elif action == 'elbow_run':
+            pass
 
-        attributesList = []
+        return parameters
 
-        allRows = self.fieldsTable.rowCount()
-        for row in range(0, allRows):
-            attributesList.append([self.fieldsTable.item(row, 0).text(), float(self.fieldsTable.item(row, 1).text())])
+    def get_run_parameters(self, general_parameters):
+        if general_parameters['algorithm'] == 'kmeans':
+            run_parameters = {
+                          'cluster_number': general_parameters['cluster_number'],
+                          'iterations': general_parameters['kmeans_iter'],
+                          'threshold': general_parameters['kmeans_clustering_threshold']
+            }
 
-        if self.clusteringMethodComboBox.currentIndex() in [0,1,3]:
-            try:
-                from scipy.cluster.vq import kmeans, vq, kmeans2
-                import scipy.cluster.hierarchy as hcluster
-            except:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Scipy is required to run selected method!')
-                return
+        elif general_parameters['algorithm'] == 'kmeans2':
+            run_parameters = {
+                          'cluster_number': general_parameters['cluster_number'],
+                          'iterations': general_parameters['kmeans2_iter'],
+                          'method': general_parameters['kmeans2_method']
+            }
 
-        cluster_max_num = self.maxClusterElbow.value()
-        cluster_num_list = []
-        sse_list = []
-        for cluster_number in range(1,cluster_max_num+1):
-            if self.clusteringMethodComboBox.currentIndex() == 0:
-               self.deactivateInterface()
-               QApplication.processEvents()
-               try:
-                   sse = self.kmeansClustering(vectorLayer, attributesList, normalize, cluster_number, kmeans_iter, kmeans_clustering_threshold, outputFieldName,
-                                         distance_calculation_method='only_object_cluster',
-                                         distance_field_prefix=self.distanceFieldPrefix.text(),
-                                         just_error_calculation=True)
-               except Exception as e:
-                   self.activateInterface()
-                   QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                   return
+        elif general_parameters['algorithm'] == 'hier':
+            run_parameters = {'cluster_number': general_parameters['cluster_number']}
 
+        elif general_parameters['algorithm'] == 'hier2':
+            run_parameters = {'threshold': general_parameters['hier2_threshold'],
+                              'max_clusters': general_parameters['hier2_max_clusters'],
+                              'depth': general_parameters['hier2_depth'],
+                              'linkage_method': general_parameters['hier2_linkage_method'],
+                              'criterion': general_parameters['hier2_criterion'],
+                              'metric': general_parameters['hier2_metric']}
+        
+        return run_parameters
 
-            if self.clusteringMethodComboBox.currentIndex() == 1:
-                self.deactivateInterface()
-                QApplication.processEvents()
-                try:
-                    sse = self.kmeans2Clustering(vectorLayer, attributesList, normalize, cluster_number, kmeans2_iter, kmeans2_method,
-                                           outputFieldName,
-                                           distance_calculation_method='only_object_cluster',
-                                           distance_field_prefix=self.distanceFieldPrefix.text(),
-                                           just_error_calculation=True
-                                           )
-                except Exception as e:
-                    self.activateInterface()
-                    QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                    return
+    def run(self):
 
-            if self.clusteringMethodComboBox.currentIndex() == 2:
-                self.deactivateInterface()
-                QApplication.processEvents()
-                try:
-                    sse = self.hierarchicalClustering(vectorLayer, attributesList, normalize, cluster_number,
-                                                outputFieldName,
-                                                distance_calculation_method='only_object_cluster',
-                                                distance_field_prefix=self.distanceFieldPrefix.text(),
-                                                just_error_calculation=True)
-                except Exception as e:
-                    self.activateInterface()
-                    QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
-                    return
+        general_parameters = self.check_and_get_inputs(action='algorithm_run')
+        if not general_parameters:
+            return
+        
+        run_parameters = self.get_run_parameters(general_parameters)
 
-            if self.clusteringMethodComboBox.currentIndex() == 3:
-                self.activateInterface()
-                QtWidgets.QMessageBox.critical(None, "Error", 'Unsupported clustering algorithm for Elbow method!')
-                return
-
-            cluster_num_list.append(cluster_number)
-            sse_list.append(sse)
-
+        try:
+            perform_clustering(vector_layer=general_parameters['vector_layer'],
+                               attributes_list=general_parameters['attributes_list'],
+                               normalize=general_parameters['normalize'],
+                               algorithm=general_parameters['algorithm'],
+                               parameters=run_parameters,
+                               output_field_name=general_parameters['output_field_name'],
+                               output_mode=general_parameters['output_mode'],
+                               distance_calculation_method=general_parameters['calculate_distances_mode'],
+                               distance_field_prefix=general_parameters['distance_field_prefix'],
+                               just_error_calculation=False,
+                               temporary_file_name=general_parameters['output_temp_layer_name'])
+        except ImportError:
+            self.activateInterface()
+            QtWidgets.QMessageBox.critical(None, "Error", 'Scipy is required to run this method')
+            return
+        except Exception as e:
+            self.activateInterface()
+            QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
+            return
+        
         self.activateInterface()
-        if not len(cluster_num_list) == 0:
-            plt.close()
-            plt.plot(cluster_num_list, sse_list, 'bx-')
-            plt.title('The Elbow Method')
-            plt.xlabel('Number of clusters')
-            plt.ylabel('Sum of squared errors')
-            plt.show()
+        QtWidgets.QMessageBox.about(None, "Success", "Done!")
+
+        return
+
+    def elbow_run(self):
+        general_parameters = self.check_and_get_inputs(action='elbow_run')
+        if not general_parameters:
+            return
+        
+        if general_parameters['algorithm'] == 'hier2':
+            self.activateInterface()
+            QtWidgets.QMessageBox.critical(None, "Error", 'Hierarchical 2 is not supported')
+            return
+
+        run_parameters = self.get_run_parameters(general_parameters)
+
+        try:
+            draw_elbow_plot(vector_layer=general_parameters['vector_layer'],
+                            attributes_list=general_parameters['attributes_list'],
+                            normalize=general_parameters['normalize'],
+                            algorithm=general_parameters['algorithm'],
+                            parameters=run_parameters,
+                            max_clusters=general_parameters['max_clusters_elbow'])
+        except ImportError:
+            self.activateInterface()
+            QtWidgets.QMessageBox.critical(None, "Error", 'Matplotlib is required to run this method')
+            return
+        except Exception as e:
+            self.activateInterface()
+            QtWidgets.QMessageBox.critical(None, "Error", 'Problems during elbow method... %s' % str(e))
+            return
 
     def cancel(self):
         self.close()
-
-    # ABC Lib
-
-    # return list of names of layer's fields. Second parameter can contain types of needed fields
-    # e.g. ['Integer','Real']
-    def getAttributesListOfVectorLayer(self, layer, types=None):
-        names = []
-
-        for field in layer.pendingFields():
-            if not types:
-                names.append(field.name())
-            else:
-                if str(field.typeName()) in types:
-                    names.append(field.name())
-
-        return names
-
-    # calculates simple distance in n-dimensions
-    def calculateDistance(self, a, b, weights):
-        sum_sqr = 0
-        k = 0
-
-        for i, j in zip(a, b):
-            if weights == None:
-                sum_sqr += 1.0 * ((float(i) - float(j)) ** 2)
-            else:
-                sum_sqr += weights[k] * ((float(i) - float(j)) ** 2)
-            k += 1
-        distance = math.sqrt(sum_sqr)
-        return distance
-
-    # get average between two n-dimensional points
-    def getAverageOfTwo(self, a, b):
-        newObject = []
-        i = 0
-        while i < len(a):
-            newObject.append((a[i] + b[i]) / 2.0)
-            i += 1
-        return newObject
-
-    # Performs hierarchical clustering. Updates vector layer field.
-    def hierarchicalClustering(self, vectorLayer, attributesList, normalize, clusterNumber, outputFieldName,
-                               distance_calculation_method = 'disabled', distance_field_prefix = None,
-                               just_error_calculation=False):
-        weights = []
-        # weights array
-        for attribute in attributesList:
-            weights.append(attribute[1])
-
-        fullObjectsList = []
-        clusterObjectList = []
-        features = vectorLayer.getFeatures()
-
-        # create full list with all characteristics
-        for feature in features:
-            fullObjectsList.append([])
-            for attribute in attributesList:
-                if feature[attribute[0]]:
-                    fullObjectsList[len(fullObjectsList) - 1].append(feature[attribute[0]])
-                else:
-                    fullObjectsList[len(fullObjectsList) - 1].append(0)
-            clusterObjectList.append([feature.id()])
-
-        # NORMALIZING (if needed)
-        if normalize:
-            i = 0
-            maxValues = []
-            while i < len(attributesList):
-                maxValues.append(max(item[i] for item in fullObjectsList))
-                i += 1
-
-            j = 0
-            while j < len(fullObjectsList):
-                i = 0
-                while i < len(fullObjectsList[j]):
-                    fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
-                    i += 1
-                j += 1
-
-        fullObjectsList_origin = copy.deepcopy(fullObjectsList)
-
-        # GO CLUSTERING
-        currentClusterNum = len(fullObjectsList)
-        while currentClusterNum > clusterNumber:
-            # Distance matrix
-            distanceMatrix = []
-            i = 0
-            min = None
-            min_i = 0
-            min_j = 0
-            while i < currentClusterNum:
-                distanceMatrix.append([])
-                j = 0
-                while j < currentClusterNum:
-                    if j >= i:
-                        distanceMatrix[i].append(0.0)
-                        j += 1
-                        continue
-                    currentDistance = self.calculateDistance(fullObjectsList[j], fullObjectsList[i], weights)
-                    if (min == None) and (i != j):
-                        min = currentDistance
-                        min_i = i
-                        min_j = j
-
-                    if (currentDistance < min) and (i != j):
-                        min = currentDistance
-                        min_i = i
-                        min_j = j
-
-                    distanceMatrix[i].append(round(currentDistance, 2))
-                    j += 1
-
-                i += 1
-
-            # split two objects into one
-            fullObjectsList[min_i] = self.getAverageOfTwo(fullObjectsList[min_i], fullObjectsList[min_j])
-            del fullObjectsList[min_j]
-
-            # updating array with clusters id
-            k = 0
-            while k < len(clusterObjectList[min_j]):
-                clusterObjectList[min_i].append(clusterObjectList[min_j][k])
-                k += 1
-            del clusterObjectList[min_j]
-
-            currentClusterNum -= 1
-
-        if not just_error_calculation:
-            # Working with layer
-            vectorLayerDataProvider = vectorLayer.dataProvider()
-
-            # Create field of not exist
-            if vectorLayer.fields().indexFromName(outputFieldName) == -1:
-                vectorLayerDataProvider.addAttributes([QgsField(outputFieldName, QVariant.Int)])
-            # DISTANCES - create fields
-            if distance_calculation_method == 'only_object_cluster':
-                if vectorLayer.fields().indexFromName(distance_field_prefix) == -1:
-                    vectorLayerDataProvider.addAttributes([QgsField(distance_field_prefix, QVariant.Double)])
-                vectorLayer.updateFields()
-                distance_index = vectorLayer.fields().indexFromName(distance_field_prefix)
-            elif distance_calculation_method == 'all_clusters':
-                distance_indices = []
-                for i in range(0, clusterNumber):
-                    if vectorLayer.fields().indexFromName(distance_field_prefix + str(i)) == -1:
-                        vectorLayerDataProvider.addAttributes(
-                            [QgsField(distance_field_prefix + str(i), QVariant.Double)])
-                        vectorLayer.updateFields()
-                    distance_indices.append(vectorLayer.fields().indexFromName(distance_field_prefix + str(i)))
-
-            vectorLayer.updateFields()
-            vectorLayer.startEditing()
-            attrIdx = vectorLayer.fields().indexFromName(outputFieldName)
-
-        features = vectorLayer.getFeatures()
-
-        k = 0
-        sse = 0
-        for feature in features:
-            i = 0
-            for idList in clusterObjectList:
-                if feature.id() in idList:
-                    if not just_error_calculation:
-                        vectorLayer.changeAttributeValue(feature.id(), attrIdx, int(i))
-
-                    if distance_calculation_method == 'only_object_cluster':
-                        current_distance = self.calculateDistance(fullObjectsList_origin[k], fullObjectsList[i], weights)
-                        sse += current_distance*current_distance
-                        if not just_error_calculation:
-                            vectorLayer.changeAttributeValue(feature.id(), distance_index, current_distance)
-
-                    elif distance_calculation_method == 'all_clusters':
-                        for j in range(0, clusterNumber):
-                            current_distance = self.calculateDistance(fullObjectsList_origin[k], fullObjectsList[j], weights)
-                            if not just_error_calculation:
-                                vectorLayer.changeAttributeValue(feature.id(), distance_indices[j], current_distance)
-
-                i += 1
-            k += 1
-
-        if not just_error_calculation:
-            vectorLayer.updateFields()
-            vectorLayer.commitChanges()
-
-        if just_error_calculation:
-            return sse
-
-
-    # Performs K-Means clustering. Updates vector layer field.
-    def kmeansClustering(self, vectorLayer, attributesList, normalize, clusterNumber, iterations, threshold, outputFieldName,
-                         distance_calculation_method = 'disabled', distance_field_prefix = None, just_error_calculation=False):
-
-        from scipy.cluster.vq import kmeans, vq
-        from numpy import array
-
-        fullObjectsList = []
-        features = vectorLayer.getFeatures()
-
-        for feature in features:
-            fullObjectsList.append([])
-            for attribute in attributesList:
-                if feature[attribute[0]]:
-                    fullObjectsList[len(fullObjectsList) - 1].append(feature[attribute[0]])
-                else:
-                    fullObjectsList[len(fullObjectsList) - 1].append(0)
-
-        # NORMALIZING
-        if normalize:
-            i = 0
-            maxValues = []
-            while i < len(attributesList):
-                maxValues.append(max(abs(item[i]) for item in fullObjectsList))
-                i += 1
-
-            j = 0
-            while j < len(fullObjectsList):
-                i = 0
-                while i < len(fullObjectsList[j]):
-                    fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
-                    i += 1
-                j += 1
-
-        data = array(fullObjectsList)
-
-        centroids, _ = kmeans(data, clusterNumber, iter=iterations, thresh=threshold)
-        idx, _ = vq(data, centroids)
-        idx = idx.tolist()
-
-        if not just_error_calculation:
-            vectorLayerDataProvider = vectorLayer.dataProvider()
-
-            # Create field of not exist
-            if vectorLayer.fields().indexFromName(outputFieldName) == -1:
-                vectorLayerDataProvider.addAttributes([QgsField(outputFieldName, QVariant.Int)])
-                vectorLayer.updateFields()
-
-            # DISTANCES - create fields
-            if distance_calculation_method == 'only_object_cluster':
-                if vectorLayer.fields().indexFromName(distance_field_prefix) == -1:
-                    vectorLayerDataProvider.addAttributes([QgsField(distance_field_prefix, QVariant.Double)])
-                vectorLayer.updateFields()
-                distance_index = vectorLayer.fields().indexFromName(distance_field_prefix)
-            elif distance_calculation_method == 'all_clusters':
-                distance_indices = []
-                for i in range(0,clusterNumber):
-                    if vectorLayer.fields().indexFromName(distance_field_prefix+str(i)) == -1:
-                        vectorLayerDataProvider.addAttributes([QgsField(distance_field_prefix+str(i), QVariant.Double)])
-                        vectorLayer.updateFields()
-                    distance_indices.append(vectorLayer.fields().indexFromName(distance_field_prefix+str(i)))
-
-            vectorLayer.updateFields()
-            vectorLayer.startEditing()
-            attrIdx = vectorLayer.fields().indexFromName(outputFieldName)
-        features = vectorLayer.getFeatures()
-
-        sse = 0
-        i = 0
-        for feature in features:
-            if not just_error_calculation:
-                vectorLayer.changeAttributeValue(feature.id(), attrIdx, int(idx[i]))
-            if distance_calculation_method == 'only_object_cluster':
-                current_distance = self.calculateDistance(fullObjectsList[i],centroids[int(idx[i])],None)
-                sse += current_distance * current_distance
-                if not just_error_calculation:
-                    vectorLayer.changeAttributeValue(feature.id(), distance_index, current_distance)
-
-            elif distance_calculation_method == 'all_clusters':
-                for j in range(0,clusterNumber):
-                    current_distance = self.calculateDistance(fullObjectsList[i], centroids[j], None)
-                    if not just_error_calculation:
-                        vectorLayer.changeAttributeValue(feature.id(), distance_indices[j], current_distance)
-            i += 1
-
-        if not just_error_calculation:
-            vectorLayer.updateFields()
-            vectorLayer.commitChanges()
-
-        if just_error_calculation:
-            return sse
-
-
-        # Performs K-Means clustering. Updates vector layer field.
-    def kmeans2Clustering(self, vectorLayer, attributesList, normalize, clusterNumber, iterations, method,
-                          outputFieldName,
-                          distance_calculation_method = 'disabled', distance_field_prefix = None,
-                          just_error_calculation=False):
-
-        from scipy.cluster.vq import kmeans2
-        from numpy import array
-        import numpy as np
-
-        fullObjectsList = []
-        features = vectorLayer.getFeatures()
-
-        for feature in features:
-            fullObjectsList.append([])
-            for attribute in attributesList:
-                if feature[attribute[0]]:
-                    fullObjectsList[len(fullObjectsList) - 1].append(feature[attribute[0]])
-                else:
-                    fullObjectsList[len(fullObjectsList) - 1].append(0)
-
-        # NORMALIZING
-        if normalize:
-            i = 0
-            maxValues = []
-            while i < len(attributesList):
-                maxValues.append(max(abs(item[i]) for item in fullObjectsList))
-                i += 1
-
-            j = 0
-            while j < len(fullObjectsList):
-                i = 0
-                while i < len(fullObjectsList[j]):
-                    fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
-                    i += 1
-                j += 1
-
-        data = array(fullObjectsList)
-
-        try:
-            centroids, labels = kmeans2(data, clusterNumber, iter=iterations, minit=method)
-        except np.linalg.LinAlgError as err:
-            centroids, labels = kmeans2(data, clusterNumber, iter=iterations, minit='points')
-
-        idx = labels.tolist()
-
-        if not just_error_calculation:
-            vectorLayerDataProvider = vectorLayer.dataProvider()
-
-            # Create field of not exist
-            if vectorLayer.fields().indexFromName(outputFieldName) == -1:
-                vectorLayerDataProvider.addAttributes([QgsField(outputFieldName, QVariant.Int)])
-
-            # DISTANCES - create fields
-            if distance_calculation_method == 'only_object_cluster':
-                if vectorLayer.fields().indexFromName(distance_field_prefix) == -1:
-                    vectorLayerDataProvider.addAttributes([QgsField(distance_field_prefix, QVariant.Double)])
-                vectorLayer.updateFields()
-                distance_index = vectorLayer.fields().indexFromName(distance_field_prefix)
-            elif distance_calculation_method == 'all_clusters':
-                distance_indices = []
-                for i in range(0, clusterNumber):
-                    if vectorLayer.fields().indexFromName(distance_field_prefix + str(i)) == -1:
-                        vectorLayerDataProvider.addAttributes(
-                            [QgsField(distance_field_prefix + str(i), QVariant.Double)])
-                        vectorLayer.updateFields()
-                    distance_indices.append(vectorLayer.fields().indexFromName(distance_field_prefix + str(i)))
-
-            vectorLayer.updateFields()
-            vectorLayer.startEditing()
-            attrIdx = vectorLayer.fields().indexFromName(outputFieldName)
-
-        features = vectorLayer.getFeatures()
-
-        sse = 0
-        i = 0
-        for feature in features:
-            if not just_error_calculation:
-                vectorLayer.changeAttributeValue(feature.id(), attrIdx, int(idx[i]))
-            if distance_calculation_method == 'only_object_cluster':
-                current_distance = self.calculateDistance(fullObjectsList[i],centroids[int(idx[i])],None)
-                sse += current_distance * current_distance
-                if not just_error_calculation:
-                    vectorLayer.changeAttributeValue(feature.id(), distance_index, current_distance)
-
-            elif distance_calculation_method == 'all_clusters':
-                for j in range(0,clusterNumber):
-                    current_distance = self.calculateDistance(fullObjectsList[i], centroids[j], None)
-                    if not just_error_calculation:
-                        vectorLayer.changeAttributeValue(feature.id(), distance_indices[j], current_distance)
-            i += 1
-
-        if not just_error_calculation:
-            vectorLayer.updateFields()
-            vectorLayer.commitChanges()
-
-        if just_error_calculation:
-            return sse
-
-    # Performs Hierarchical clustering from scipy with unknown number of clusters. Updates vector layer field.
-    def hierarchicalClusteringScipy(self, vectorLayer, attributesList, normalize, clusterThreshold, linkageMethod, criterion, metric, depth, max_clust, outputFieldName):
-        import scipy.cluster.hierarchy as hcluster
-        from numpy import array
-
-        fullObjectsList = []
-        features = vectorLayer.getFeatures()
-
-        for feature in features:
-            fullObjectsList.append([])
-            for attribute in attributesList:
-                if feature[attribute[0]]:
-                    fullObjectsList[len(fullObjectsList) - 1].append(feature[attribute[0]])
-                else:
-                    fullObjectsList[len(fullObjectsList) - 1].append(0)
-
-        # NORMALIZING
-        if normalize:
-            i = 0
-            maxValues = []
-            while i < len(attributesList):
-                maxValues.append(max(abs(item[i]) for item in fullObjectsList))
-                i += 1
-
-            j = 0
-            while j < len(fullObjectsList):
-                i = 0
-                while i < len(fullObjectsList[j]):
-                    fullObjectsList[j][i] = (fullObjectsList[j][i] * 1.0) / (maxValues[i] * 1.0)
-                    i += 1
-                j += 1
-
-        data = array(fullObjectsList)
-
-        if criterion == 'maxclust':
-            clusters = hcluster.fclusterdata(data, t=max_clust, criterion=criterion, method=linkageMethod,
-                                             metric=metric, depth=depth)
-        else:
-            clusters = hcluster.fclusterdata(data, t=clusterThreshold, criterion=criterion, method=linkageMethod,
-                                             metric=metric, depth=depth)
-
-        vectorLayerDataProvider = vectorLayer.dataProvider()
-#
-        ## Create field of not exist
-        if vectorLayer.fields().indexFromName(outputFieldName) == -1:
-            vectorLayerDataProvider.addAttributes([QgsField(outputFieldName, QVariant.Int)])
-#
-        vectorLayer.updateFields()
-        vectorLayer.startEditing()
-        attrIdx = vectorLayer.fields().indexFromName(outputFieldName)
-        features = vectorLayer.getFeatures()
-#
-        i = 0
-        for feature in features:
-            vectorLayer.changeAttributeValue(feature.id(), attrIdx, int(clusters[i]))
-            i += 1
-#
-        vectorLayer.updateFields()
-        vectorLayer.commitChanges()
