@@ -5,15 +5,13 @@ Attribute based clustering: QGIS Plugin
 https://github.com/eduard-kazakov/attributeBasedClustering
 
 Eduard Kazakov | ee.kazakov@gmail.com
-
-2024
 """
 
 import os
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-from qgis.core import QgsFieldProxyModel,QgsMapLayerProxyModel
-from .attribute_based_clustering_algoritms import perform_clustering, draw_elbow_plot
+from qgis.core import QgsFieldProxyModel,QgsMapLayerProxyModel, QgsProject
+from .processing.attribute_based_clustering_algoritms import perform_clustering, draw_elbow_plot
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'attribute_based_clustering_dialog_base.ui'))
@@ -102,7 +100,6 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def checkIfTableIsCorrect(self):
         allRows = self.fieldsTable.rowCount()
-        layerName = self.vectorLayerComboBox.currentText()
 
         for row in range(0,allRows):
             try:
@@ -196,7 +193,6 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
         parameters['attributes_list'] = attributes_list
 
         # Specific by algorithm
-        # K-Means
         if self.clusteringMethodComboBox.currentIndex() == 0:
             parameters['algorithm'] = 'kmeans'
             try:
@@ -315,17 +311,17 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
         run_parameters = self.get_run_parameters(general_parameters)
 
         try:
-            perform_clustering(vector_layer=general_parameters['vector_layer'],
-                               attributes_list=general_parameters['attributes_list'],
-                               normalize=general_parameters['normalize'],
-                               algorithm=general_parameters['algorithm'],
-                               parameters=run_parameters,
-                               output_field_name=general_parameters['output_field_name'],
-                               output_mode=general_parameters['output_mode'],
-                               distance_calculation_method=general_parameters['calculate_distances_mode'],
-                               distance_field_prefix=general_parameters['distance_field_prefix'],
-                               just_error_calculation=False,
-                               temporary_file_name=general_parameters['output_temp_layer_name'])
+            layer = perform_clustering(vector_layer=general_parameters['vector_layer'],
+                                       attributes_list=general_parameters['attributes_list'],
+                                       normalize=general_parameters['normalize'],
+                                       algorithm=general_parameters['algorithm'],
+                                       parameters=run_parameters,
+                                       output_field_name=general_parameters['output_field_name'],
+                                       output_mode=general_parameters['output_mode'],
+                                       distance_calculation_method=general_parameters['calculate_distances_mode'],
+                                       distance_field_prefix=general_parameters['distance_field_prefix'],
+                                       just_error_calculation=False,
+                                       temporary_file_name=general_parameters['output_temp_layer_name'])
         except ImportError:
             self.activateInterface()
             QtWidgets.QMessageBox.critical(None, "Error", 'Scipy is required to run this method')
@@ -335,6 +331,9 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
             QtWidgets.QMessageBox.critical(None, "Error", 'Problems during clustering... %s' % str(e))
             return
         
+        if general_parameters['output_mode'] == 'temp':
+            QgsProject.instance().addMapLayer(layer)
+
         self.activateInterface()
         QtWidgets.QMessageBox.about(None, "Success", "Done!")
 

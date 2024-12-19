@@ -6,9 +6,12 @@ https://github.com/eduard-kazakov/attributeBasedClustering
 
 Eduard Kazakov | ee.kazakov@gmail.com
 """
+
 from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
+from .processing.provider import AttributeBasedClusteringProvider
+from qgis.core import QgsApplication
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -18,11 +21,8 @@ import os.path
 
 class AttributeBasedClustering:
     def __init__(self, iface):
-        # Save reference to the QGIS interface
         self.iface = iface
-        # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
-        # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
@@ -36,16 +36,16 @@ class AttributeBasedClustering:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-        # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Attribute based clustering')
 
         self.first_start = None
 
+        self.provider = None
+
+
     def tr(self, message):
-
         return QCoreApplication.translate('AttributeBasedClustering', message)
-
 
     def add_action(
         self,
@@ -71,7 +71,6 @@ class AttributeBasedClustering:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Adds plugin icon to Plugins toolbar
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
@@ -95,19 +94,21 @@ class AttributeBasedClustering:
         # will be set False in run()
         self.first_start = True
 
+        self.provider = AttributeBasedClusteringProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
 
     def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginVectorMenu(
                 self.tr(u'&Attribute based clustering'),
                 action)
             self.iface.removeToolBarIcon(action)
 
+        QgsApplication.processingRegistry().removeProvider(self.provider)
+
 
     def run(self):
-        """Run method that performs all the real work"""
-
         if self.first_start == True:
             self.first_start = False
             self.dlg = AttributeBasedClusteringDialog()

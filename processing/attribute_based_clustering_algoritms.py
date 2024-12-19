@@ -1,21 +1,26 @@
+# -*- coding: utf-8 -*-
 """
 Attribute based clustering: QGIS Plugin
 
 https://github.com/eduard-kazakov/attributeBasedClustering
 
 Eduard Kazakov | ee.kazakov@gmail.com
-
-2024
 """
 
 import copy
 import math
 import numpy as np
 from numpy import array
-from qgis.core import QgsTask, QgsMessageLog
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
-from qgis.core import QgsField, QgsProject, QgsVectorLayer
+from qgis.PyQt.QtCore import QVariant
+from qgis.core import QgsField, QgsVectorLayer
 import processing
+
+def list_of_fields_to_struct(fields_list):
+    struct = []
+    for field in fields_list:
+        struct.append([field,1.0])
+    return struct
+
 
 def normalize_attributes (attributes_list, full_objects_list):
     # full_objects_list is list [[val1, val2, ... valN], ..., [val1, val2, ... valN]]
@@ -80,7 +85,6 @@ def hierarchical_clustering_native (full_objects_list,
     cluster_object_list = [[i] for i in cluster_object_list]
     
     working_full_objects_list = copy.deepcopy(full_objects_list)
-    current_cluster_num = len(working_full_objects_list)
     p = 0
 
     # Initial distance matrix fill
@@ -283,7 +287,9 @@ def perform_clustering (vector_layer,
                         distance_field_prefix = None,
                         just_error_calculation=False,
                         temporary_file_name=None):
-    
+
+    print (attributes_list)
+
     idx, centroids, distances, sse = clustering_with_metrics(vector_layer,
                                                              attributes_list,
                                                              normalize,
@@ -348,7 +354,7 @@ def perform_clustering (vector_layer,
 
     working_layer.updateFields()
     working_layer.commitChanges()
-    QgsProject.instance().addMapLayer(working_layer)
+    return working_layer
 
 
 def draw_elbow_plot(vector_layer,
