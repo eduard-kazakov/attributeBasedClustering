@@ -1,21 +1,30 @@
 [general]
 name = Attribute based clustering
-qgisMinimumVersion = 2.99
+qgisMinimumVersion = 3.32
 qgisMaximumVersion = 3.99
-about = Attribute based clustering for vector layers by numeric attributes using hierarchical or k-means algorithms (known and unknown number of clusters supported).
-description = Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms. Hierarchical algorithm is available in two variations: native realization for known number of clusters and scipy realization for unknown number of clusters. K-means method requieres scipy and known number of clusters. You can define weight for every attribute, if native hierarchical clustering used. Elbow method for estimating optimal number of clusters is available. Also calculating of distances from each object to centroids of each cluster is available.
+description = Clustering for vector layers based on their numeric attributes
+about = Plugin produces clustering for features of vector layer based on unlimited number of attributes using hierarchical or k-means algorithms. Hierarchical algorithm is available in two variations: native realization for known number of clusters and scipy realization for unknown number of clusters. K-means method requieres scipy and known number of clusters. You can define weight for every attribute, if native hierarchical clustering used. Elbow method for estimating optimal number of clusters is available. Also calculating of distances from each object to centroids of each cluster is available.
 category = Vector
-version = 2.2.1
+version = 3.0
 author = Eduard Kazakov
 email=ee.kazakov@gmail.com
 changelog=
-    2.0 : update to QGIS 3. Also new clustering method added - scipy hierarchical clustering for unknown number of clusters.
-    2.1 : K-Means2 method added. Links to original documentation added. Much more options for scipy algorithms are available.
-    2.2 : Now plugin able to calculate distances to cluster's centroids for each object. Also Elbow Method is added to help you figure out optimal number of clusters.
-	2.2.1 : Broken manual link is deleted
+	3.0
+		* Implemented processing tools for all clustering methods
+		* New output parametrization
+		* Heavy refactoring and internal optimizations. Native hierarchical clustering is now 100x times faster
+        * Updated documentation
+    2.2.1
+        * Broken manual link is deleted
+    2.2
+        * Now plugin is able to calculate distances to cluster's centroids for each object. Also Elbow Method is added to help figuring out an optimal number of clusters
+    2.1
+        * Added the K-Means2 method, along with links to the original documentation. Expanded support for SciPy algorithms with many additional options now available
+    2.0
+        * Updated for QGIS 3. Also new clustering method added - scipy hierarchical clustering for unknown number of clusters
 
 tags = vector, clustering, attributes
-homepage = https://github.com/eduard-kazakov/attributeBasedClustering
+homepage = https://ekazakov.me/attribute-based-clustering-qgis-plugin
 tracker = https://github.com/eduard-kazakov/attributeBasedClustering/issues
 repository = https://github.com/eduard-kazakov/attributeBasedClustering
 icon = icon.png

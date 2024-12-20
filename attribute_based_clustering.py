@@ -12,6 +12,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 from .processing.provider import AttributeBasedClusteringProvider
 from qgis.core import QgsApplication
+import webbrowser
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -85,10 +86,18 @@ class AttributeBasedClustering:
     def initGui(self):
 
         icon_path = ':/plugins/attribute_based_clustering/icon.png'
+        help_icon_path = None
         self.add_action(
             icon_path,
             text=self.tr(u'Attribute based clustering'),
             callback=self.run,
+            parent=self.iface.mainWindow())
+        
+        self.add_action(
+            help_icon_path,
+            text=self.tr(u'Help'),
+            add_to_toolbar=False,
+            callback=self.help,
             parent=self.iface.mainWindow())
 
         # will be set False in run()
@@ -107,6 +116,8 @@ class AttributeBasedClustering:
 
         QgsApplication.processingRegistry().removeProvider(self.provider)
 
+    def help(self):
+        webbrowser.open('https://ekazakov.me/attribute-based-clustering-qgis-plugin')
 
     def run(self):
         if self.first_start == True:

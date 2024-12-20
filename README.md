@@ -1,24 +1,37 @@
-## Attribute based clustering
+# Attribute based clustering
 
 QGIS plugin for clustering vector data based on attributes.
 
-Available features:
+![alt text](ABC_cover.png)
+
+## Features
 * Customizable clustering with 4 methods: two variations of K-Means and two variations of Hierarchical clustering. 3 of them are for known number of clusters, and 1 for unknown
-* Output is new attribute with relevant for object cluster number.
+* All clustering methods are available as QGIS Processing tools and via special GUI 
+* Inpit is any vector layer with one or more numeric attributes
+* Output is a new attribute with relevant for object cluster number.
 * Different weights for attributes available when using native hierarchical clustring method
-* You also able to calculate distances from each object to centroids of each cluster and save them as attributes
-* Elbow method for estimating optimal number of clusters
+* Ability to calculate distances from each object to centroids of each cluster and save them as attributes
+* Ability to draw Elbow plot for estimating optimal number of clusters
+
+Elbow plot:
+
+![alt text](elbow.png)
+
+Output attributes (cluster number and distances to cluster centroids):
+![alt text](attributes.png)
+
+## Documentation
 
 
-### Installation
 
-Put this folder at QGIS 3 python plugins directory
+## Installation
 
-Plugin also available in main QGIS Plugins repository
+The plugin is available in the official QGIS Plugin Repository.
+
+You can also install it from ZIP archive.
 
 
-### Contacts
+## Contacts
 
 Eduard Kazakov | ee.kazakov@gmail.com
-
 

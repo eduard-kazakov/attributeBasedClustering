@@ -7,7 +7,7 @@ https://github.com/eduard-kazakov/attributeBasedClustering
 Eduard Kazakov | ee.kazakov@gmail.com
 """
 
-import os
+import os, webbrowser
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 from qgis.core import QgsFieldProxyModel,QgsMapLayerProxyModel, QgsProject
@@ -29,9 +29,11 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
         self.progressBar.setVisible(False)
 
         # Buttons
-        self.vectorLayerComboBox.currentIndexChanged.connect(self.layerChanged)
+        self.vectorLayerComboBox.textActivated.connect(self.layerChanged)
         self.additionalOptionsTabWidget.currentChanged.connect(self.tabChanged)
         self.clusteringMethodComboBox.currentIndexChanged.connect(self.methodChanged)
+        
+        self.helpButton.clicked.connect(self.help)
 
         self.criterionComBox.currentIndexChanged.connect(self.criterionChanged)
 
@@ -366,6 +368,9 @@ class AttributeBasedClusteringDialog(QtWidgets.QDialog, FORM_CLASS):
             self.activateInterface()
             QtWidgets.QMessageBox.critical(None, "Error", 'Problems during elbow method... %s' % str(e))
             return
+
+    def help(self):
+        webbrowser.open('https://ekazakov.me/attribute-based-clustering-qgis-plugin')
 
     def cancel(self):
         self.close()
