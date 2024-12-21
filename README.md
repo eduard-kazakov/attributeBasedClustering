@@ -22,7 +22,7 @@ Output attributes (cluster number and distances to cluster centroids):
 
 ## Documentation
 
-
+General plugin documentation is available here: https://ekazakov.me/attribute-based-clustering-qgis-plugin
 
 ## Installation
 
