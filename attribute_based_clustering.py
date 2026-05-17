@@ -7,9 +7,9 @@ https://github.com/eduard-kazakov/attributeBasedClustering
 Eduard Kazakov | ee.kazakov@gmail.com
 """
 
-from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 from .processing.provider import AttributeBasedClusteringProvider
 from qgis.core import QgsApplication
 import webbrowser
@@ -125,4 +125,4 @@ class AttributeBasedClustering:
             self.dlg = AttributeBasedClusteringDialog()
 
         self.dlg.show()
-        result = self.dlg.exec_()
+        result = self.dlg.exec() if hasattr(self.dlg, "exec") else self.dlg.exec_()

@@ -8,8 +8,8 @@ Eduard Kazakov | ee.kazakov@gmail.com
 """
 
 import os, webbrowser
-from PyQt5 import uic
-from PyQt5 import QtWidgets
+from qgis.PyQt import uic
+from qgis.PyQt import QtWidgets
 from qgis.core import QgsFieldProxyModel,QgsMapLayerProxyModel, QgsProject
 from .processing.attribute_based_clustering_algoritms import perform_clustering, draw_elbow_plot
 
